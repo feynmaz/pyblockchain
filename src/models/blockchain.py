@@ -1,6 +1,6 @@
-from datetime import datetime
-import json
 import hashlib
+import json
+from datetime import datetime
 
 
 class BlockChain:
@@ -26,7 +26,9 @@ class BlockChain:
         new_proof = 1
         check_proof = False
         while check_proof is False:
-            hash_operation = hashlib.sha256(str(new_proof**2 - previous_proof**2).encode()).hexdigest()
+            hash_operation = hashlib.sha256(
+                str(new_proof**2 - previous_proof**2).encode()
+            ).hexdigest()
             if hash_operation[:4] == "0000":
                 check_proof = True
             else:
@@ -49,7 +51,9 @@ class BlockChain:
 
             previous_proof = previous_block["proof"]
             proof = block["proof"]
-            hash_operation = hashlib.sha256(str(proof**2 - previous_proof**2).encode()).hexdigest()
+            hash_operation = hashlib.sha256(
+                str(proof**2 - previous_proof**2).encode()
+            ).hexdigest()
             if hash_operation[:4] != "0000":
                 return False
 
