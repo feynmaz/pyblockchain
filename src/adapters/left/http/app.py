@@ -1,9 +1,11 @@
+from sanic import json
 from sanic import Request
 from sanic import Sanic
 from sanic.response import HTTPResponse
 from sanic_ext import openapi
 
 from .models.responses import GetChain
+from .models.responses import IsValid
 from .models.responses import MineBlock
 from src.app.blockchain import BlockChain
 
@@ -41,6 +43,12 @@ async def mine_block(request: Request):
 
 
 @app.get("/get_chain")
+@openapi.response(
+    200,
+    {
+        "application/json": GetChain,
+    },
+)
 def get_chain(request):
     response = GetChain(
         chain=blockchain.chain,
@@ -50,3 +58,19 @@ def get_chain(request):
         body=response.json(),
         content_type="application/json",
     )
+
+
+@app.get("/is_valid")
+@openapi.response(
+    200,
+    {
+        "application/json": IsValid,
+    },
+)
+def is_valid(request):
+    message, is_valid = blockchain.is_valid()
+    response = IsValid(
+        is_valid=is_valid,
+        message=message if message else None,
+    )
+    return json(response.dict(exclude_none=True))
