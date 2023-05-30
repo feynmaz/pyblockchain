@@ -1,11 +1,11 @@
-from sanic import Request, Sanic
-from sanic.response import json, raw, HTTPResponse
+from sanic import Request
+from sanic import Sanic
+from sanic.response import HTTPResponse
 from sanic_ext import openapi
-from sanic_ext.extensions.openapi.definitions import Response
 
+from .models.responses import GetChain
+from .models.responses import MineBlock
 from src.app.blockchain import BlockChain
-from sanic_ext import serializer
-from .models.responses import GetChain, MineBlock
 
 blockchain = BlockChain()
 
