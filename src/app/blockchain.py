@@ -2,20 +2,23 @@ import hashlib
 import json
 from datetime import datetime
 
+from .models.block import Block
+
 
 class BlockChain:
     def __init__(self):
-        self.chain = []
+        self.chain: list[Block] = []
         self.create_block(proof=1, previous_hash="0")
 
-    def create_block(self, proof, previous_hash, data=""):
-        block = {
-            "index": len(self.chain) + 1,
-            "timestamp": str(datetime.now()),
-            "proof": proof,
-            "previous_hash": previous_hash,
-            "data": data,
-        }
+    def create_block(self, proof, previous_hash, data="") -> Block:
+        block = Block(
+            hash="",
+            index=len(self.chain) + 1,
+            timestamp=datetime.now(),
+            proof=proof,
+            previous_hash=previous_hash,
+            data=data,
+        )
         self.chain.append(block)
         return block
 
@@ -26,9 +29,7 @@ class BlockChain:
         new_proof = 1
         check_proof = False
         while check_proof is False:
-            hash_operation = hashlib.sha256(
-                str(new_proof**2 - previous_proof**2).encode()
-            ).hexdigest()
+            hash_operation = hashlib.sha256(str(new_proof**2 - previous_proof**2).encode()).hexdigest()
             if hash_operation[:4] == "0000":
                 check_proof = True
             else:
@@ -36,8 +37,8 @@ class BlockChain:
 
         return new_proof
 
-    def hash(self, block: dict):
-        encoded_block = json.dumps(block, sort_keys=True).encode()
+    def hash(self, block: Block):
+        encoded_block = block.json(sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
 
     def is_chain_valid(self, chain):
@@ -46,14 +47,12 @@ class BlockChain:
 
         while block_index < len(chain):
             block = chain[block_index]
-            if block["previous_hash"] != self.hash(previous_block):
+            if block.previous_hash != self.hash(previous_block):
                 return False
 
-            previous_proof = previous_block["proof"]
-            proof = block["proof"]
-            hash_operation = hashlib.sha256(
-                str(proof**2 - previous_proof**2).encode()
-            ).hexdigest()
+            previous_proof = previous_block.proof
+            proof = block.proof
+            hash_operation = hashlib.sha256(str(proof**2 - previous_proof**2).encode()).hexdigest()
             if hash_operation[:4] != "0000":
                 return False
 
