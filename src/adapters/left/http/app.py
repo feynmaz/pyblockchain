@@ -49,7 +49,7 @@ async def mine_block(request: Request):
         "application/json": GetChain,
     },
 )
-def get_chain(request):
+async def get_chain(request):
     response = GetChain(
         chain=blockchain.chain,
     )
@@ -67,7 +67,7 @@ def get_chain(request):
         "application/json": IsValid,
     },
 )
-def is_valid(request):
+async def is_valid(request):
     message, is_valid = blockchain.is_valid()
     response = IsValid(
         is_valid=is_valid,
