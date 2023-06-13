@@ -1,14 +1,19 @@
 import hashlib
 from datetime import datetime
+from typing import Iterable
 from typing import Tuple
+from urllib.parse import urlparse
 
 from .models.block import Block
+from .models.transaction import Transaction
 
 
 class BlockChain:
     def __init__(self):
-        self.chain: list[Block] = []
+        self.chain: Iterable[Block] = []
+        self.transactions: Iterable[Transaction] = []
         self.create_block(proof=1, previous_hash='0')
+        self.nodes = set()
 
     def create_block(self, proof: int, previous_hash: str, data: str = '') -> Block:
         block = Block(
@@ -18,7 +23,9 @@ class BlockChain:
             proof=proof,
             previous_hash=previous_hash,
             data=data,
+            transactions=self.transactions,
         )
+        self.transactions: Iterable[Transaction] = []
         self.chain.append(block)
         return block
 
@@ -66,3 +73,18 @@ class BlockChain:
             return 'Chain is invalid', False
 
         return '', True
+
+    def add_transaction(self, sender: str, receiver: str, amount: float) -> int:
+        self.transactions.append(
+            Transaction(
+                sender=sender,
+                reveiver=receiver,
+                amount=amount,
+            )
+        )
+        previous_block = self.get_previous_block()
+        return previous_block.index + 1
+
+    def add_node(self, address: str):
+        parsed_url = urlparse(address)
+        self.nodes.add(parsed_url.netloc)
