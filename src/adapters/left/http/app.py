@@ -8,6 +8,7 @@ from .models.responses import GetChain
 from .models.responses import IsValid
 from .models.responses import MineBlock
 from src.app.blockchain import BlockChain
+from src.settings import settings
 
 blockchain = BlockChain()
 
@@ -26,6 +27,12 @@ async def mine_block(request: Request):
     prev_proof = previous_block.proof
     proof = blockchain.proof_of_work(prev_proof)
     previous_hash = blockchain.hash(previous_block)
+
+    blockchain.add_transaction(
+        sender=settings.node_address,
+        receiver='Nikolai',
+        amount=143,
+    )
     block = blockchain.create_block(proof, previous_hash)
 
     response = MineBlock(
@@ -34,6 +41,7 @@ async def mine_block(request: Request):
         timestamp=block.timestamp,
         proof=block.proof,
         previous_hash=block.previous_hash,
+        transactions=block.transactions,
     )
 
     return HTTPResponse(

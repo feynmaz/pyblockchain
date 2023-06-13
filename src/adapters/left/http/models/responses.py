@@ -1,10 +1,12 @@
 from datetime import datetime
+from typing import Iterable
 from typing import Optional
 
 from pydantic import BaseModel
 from pydantic import Field
 
 from src.app.models.block import Block
+from src.app.models.transaction import Transaction
 
 
 class MineBlock(BaseModel):
@@ -13,6 +15,7 @@ class MineBlock(BaseModel):
     timestamp: datetime = Field()
     proof: int
     previous_hash: str
+    transactions: Iterable[Transaction]
 
 
 class GetChain(BaseModel):
