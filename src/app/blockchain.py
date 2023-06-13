@@ -8,11 +8,11 @@ from .models.block import Block
 class BlockChain:
     def __init__(self):
         self.chain: list[Block] = []
-        self.create_block(proof=1, previous_hash="0")
+        self.create_block(proof=1, previous_hash='0')
 
-    def create_block(self, proof: int, previous_hash: str, data: str = "") -> Block:
+    def create_block(self, proof: int, previous_hash: str, data: str = '') -> Block:
         block = Block(
-            hash="",
+            hash='',
             index=len(self.chain) + 1,
             timestamp=datetime.now(),
             proof=proof,
@@ -30,7 +30,7 @@ class BlockChain:
         is_proof_valid = False
         while is_proof_valid is False:
             hash_operation = hashlib.sha256(str(new_proof**2 - previous_proof**2).encode()).hexdigest()
-            if hash_operation[:4] == "0000":
+            if hash_operation[:4] == '0000':
                 is_proof_valid = True
             else:
                 new_proof += 1
@@ -53,7 +53,7 @@ class BlockChain:
             previous_proof = previous_block.proof
             proof = block.proof
             hash_operation = hashlib.sha256(str(proof**2 - previous_proof**2).encode()).hexdigest()
-            if hash_operation[:4] != "0000":
+            if hash_operation[:4] != '0000':
                 return False
 
             previous_block = block
@@ -63,6 +63,6 @@ class BlockChain:
 
     def is_valid(self) -> Tuple[str, bool]:
         if not self.is_chain_valid(self.chain):
-            return "Chain is invalid", False
+            return 'Chain is invalid', False
 
-        return "", True
+        return '', True

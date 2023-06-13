@@ -11,14 +11,14 @@ from src.app.blockchain import BlockChain
 
 blockchain = BlockChain()
 
-app = Sanic("blockchain")
+app = Sanic('blockchain')
 
 
-@app.get("/mine_block")
+@app.get('/mine_block')
 @openapi.response(
     200,
     {
-        "application/json": MineBlock,
+        'application/json': MineBlock,
     },
 )
 async def mine_block(request: Request):
@@ -29,7 +29,7 @@ async def mine_block(request: Request):
     block = blockchain.create_block(proof, previous_hash)
 
     response = MineBlock(
-        message="Congratulations! You just mined a block!",
+        message='Congratulations! You just mined a block!',
         index=block.index,
         timestamp=block.timestamp,
         proof=block.proof,
@@ -38,15 +38,15 @@ async def mine_block(request: Request):
 
     return HTTPResponse(
         body=response.json(),
-        content_type="application/json",
+        content_type='application/json',
     )
 
 
-@app.get("/get_chain")
+@app.get('/get_chain')
 @openapi.response(
     200,
     {
-        "application/json": GetChain,
+        'application/json': GetChain,
     },
 )
 async def get_chain(request):
@@ -56,15 +56,15 @@ async def get_chain(request):
 
     return HTTPResponse(
         body=response.json(),
-        content_type="application/json",
+        content_type='application/json',
     )
 
 
-@app.get("/is_valid")
+@app.get('/is_valid')
 @openapi.response(
     200,
     {
-        "application/json": IsValid,
+        'application/json': IsValid,
     },
 )
 async def is_valid(request):
