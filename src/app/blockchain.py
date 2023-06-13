@@ -1,8 +1,12 @@
 import hashlib
 from datetime import datetime
+from http import HTTPStatus
 from typing import Iterable
+from typing import Set
 from typing import Tuple
 from urllib.parse import urlparse
+
+import requests
 
 from .models.block import Block
 from .models.transaction import Transaction
@@ -13,7 +17,7 @@ class BlockChain:
         self.chain: Iterable[Block] = []
         self.transactions: Iterable[Transaction] = []
         self.create_block(proof=1, previous_hash='0')
-        self.nodes = set()
+        self.nodes: Set[str] = set()
 
     def create_block(self, proof: int, previous_hash: str, data: str = '') -> Block:
         block = Block(
@@ -88,3 +92,22 @@ class BlockChain:
     def add_node(self, address: str):
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)
+
+    def replace_chain(self):
+        network = self.nodes
+        longest_chain: Iterable[Block] = []
+        max_length = len(self.chain)
+        for node in network:
+            with requests.get(f'http://{node}/get_chain') as response:
+                if response.status_code == HTTPStatus.OK.value:
+                    length = response.json()['length']
+                    chain = response.json()['chain']
+                    if length > max_length and self.is_chain_valid(chain):
+                        max_length = length
+                        longest_chain = chain
+
+        if longest_chain:
+            self.chain = longest_chain
+            return True
+
+        return False
