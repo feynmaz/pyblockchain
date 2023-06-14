@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Iterable
 
 from pydantic import BaseModel
 
@@ -13,4 +12,4 @@ class Block(BaseModel):
     proof: int
     previous_hash: str
     data: str
-    transactions: Iterable[Transaction]
+    transactions: list[Transaction]

@@ -3,5 +3,5 @@ from pydantic import BaseModel
 
 class Transaction(BaseModel):
     sender: str
-    reveiver: str
+    receiver: str
     amount: float

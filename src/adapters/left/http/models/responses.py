@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterable
+from typing import List
 from typing import Optional
 
 from pydantic import BaseModel
@@ -15,7 +15,7 @@ class MineBlock(BaseModel):
     timestamp: datetime = Field()
     proof: int
     previous_hash: str
-    transactions: Iterable[Transaction]
+    transactions: List[Transaction]
 
 
 class GetChain(BaseModel):

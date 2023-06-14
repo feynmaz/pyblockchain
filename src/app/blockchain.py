@@ -1,7 +1,6 @@
 import hashlib
 from datetime import datetime
 from http import HTTPStatus
-from typing import Iterable
 from typing import Set
 from typing import Tuple
 from urllib.parse import urlparse
@@ -14,8 +13,8 @@ from .models.transaction import Transaction
 
 class BlockChain:
     def __init__(self):
-        self.chain: Iterable[Block] = []
-        self.transactions: Iterable[Transaction] = []
+        self.chain: list[Block] = []
+        self.transactions: list[Transaction] = []
         self.create_block(proof=1, previous_hash='0')
         self.nodes: Set[str] = set()
 
@@ -29,7 +28,7 @@ class BlockChain:
             data=data,
             transactions=self.transactions,
         )
-        self.transactions: Iterable[Transaction] = []
+        self.transactions: list[Transaction] = []
         self.chain.append(block)
         return block
 
@@ -82,7 +81,7 @@ class BlockChain:
         self.transactions.append(
             Transaction(
                 sender=sender,
-                reveiver=receiver,
+                receiver=receiver,
                 amount=amount,
             )
         )
@@ -95,7 +94,7 @@ class BlockChain:
 
     def replace_chain(self):
         network = self.nodes
-        longest_chain: Iterable[Block] = []
+        longest_chain: list[Block] = []
         max_length = len(self.chain)
         for node in network:
             with requests.get(f'http://{node}/get_chain') as response:
