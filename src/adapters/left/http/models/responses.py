@@ -34,3 +34,8 @@ class IsValid(BaseModel):
 class ConnectNodes(BaseModel):
     message: str
     total_nodes: int
+
+
+class ReplaceChain(BaseModel):
+    message: str
+    chain: list[Block]

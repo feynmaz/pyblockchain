@@ -146,3 +146,23 @@ async def connect_node(request: Request):
         body=response.dict(),
         status=201,
     )
+
+
+@app.get('/replace_chain')
+@openapi.response(
+    200,
+    {
+        'application/json': responses.ReplaceChain,
+    },
+)
+def replace_chain(request):
+    is_chain_replaced = blockchain.replace_chain()
+    if is_chain_replaced:
+        response = responses.ReplaceChain(
+            message='nodes had different chains so the chain was replaced by the longest one', chain=blockchain.chain
+        )
+
+    else:
+        response = responses.ReplaceChain(message='all good. The chain is the largest', chain=blockchain.chain)
+
+    return json(body=response.dict())
