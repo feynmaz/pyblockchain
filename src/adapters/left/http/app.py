@@ -14,9 +14,6 @@ from src.app.blockchain import BlockChain
 from src.app.models.transaction import Transaction
 from src.settings import settings
 
-# from .models.requests import ConnectNodes
-
-
 blockchain = BlockChain()
 
 app = Sanic('blockchain')
