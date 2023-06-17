@@ -29,3 +29,8 @@ class GetChain(BaseModel):
 class IsValid(BaseModel):
     is_valid: bool
     message: Optional[str] = None
+
+
+class ConnectNodes(BaseModel):
+    message: str
+    total_nodes: int

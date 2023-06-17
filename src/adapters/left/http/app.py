@@ -3,17 +3,19 @@ from sanic import json
 from sanic import Request
 from sanic import Sanic
 from sanic import text
+from sanic.exceptions import BadRequest
+from sanic.exceptions import SanicException
 from sanic.response import HTTPResponse
 from sanic_ext import openapi
 
-from .models.responses import GetChain
-from .models.responses import IsValid
-from .models.responses import MineBlock
+from .models import requests
+from .models import responses
 from src.app.blockchain import BlockChain
 from src.app.models.transaction import Transaction
 from src.settings import settings
 
-# from src.app.models.transaction import Transaction
+# from .models.requests import ConnectNodes
+
 
 blockchain = BlockChain()
 
@@ -24,7 +26,7 @@ app = Sanic('blockchain')
 @openapi.response(
     200,
     {
-        'application/json': MineBlock,
+        'application/json': responses.MineBlock,
     },
 )
 async def mine_block(request: Request):
@@ -40,7 +42,7 @@ async def mine_block(request: Request):
     )
     block = blockchain.create_block(proof, previous_hash)
 
-    response = MineBlock(
+    response = responses.MineBlock(
         message='Congratulations! You just mined a block!',
         index=block.index,
         timestamp=block.timestamp,
@@ -59,11 +61,11 @@ async def mine_block(request: Request):
 @openapi.response(
     200,
     {
-        'application/json': GetChain,
+        'application/json': responses.GetChain,
     },
 )
 async def get_chain(request):
-    response = GetChain(
+    response = responses.GetChain(
         chain=blockchain.chain,
     )
 
@@ -77,12 +79,12 @@ async def get_chain(request):
 @openapi.response(
     200,
     {
-        'application/json': IsValid,
+        'application/json': responses.IsValid,
     },
 )
 async def is_valid(request):
     message, is_valid = blockchain.is_valid()
-    response = IsValid(
+    response = responses.IsValid(
         is_valid=is_valid,
         message=message if message else None,
     )
@@ -108,5 +110,39 @@ async def add_transaction(request: Request):
     )
     return text(
         body=f'This transaction will be added to the block {index}',
+        status=201,
+    )
+
+
+@app.post('/connect_node')
+@openapi.body({'application/json': requests.ConnectNodes})
+@openapi.response(
+    201,
+    {
+        'application/json': responses.ConnectNodes,
+    },
+)
+async def connect_node(request: Request):
+    body_raw = request.json
+    try:
+        nodes = requests.ConnectNodes.parse_obj(body_raw)
+    except ValueError as err:
+        raise SanicException(
+            message=f'bad request body: {err}',
+            status_code=422,
+        )
+
+    if nodes.IsEmpty():
+        raise BadRequest(message='no nodes provided')
+
+    for node in nodes.GetNodes():
+        blockchain.add_node(node)
+
+    response = responses.ConnectNodes(
+        message='all the nodes are connected',
+        total_nodes=len(blockchain.nodes),
+    )
+    return json(
+        body=response.dict(),
         status=201,
     )
