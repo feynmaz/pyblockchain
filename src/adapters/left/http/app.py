@@ -162,4 +162,7 @@ def replace_chain(request):
     else:
         response = responses.ReplaceChain(message='all good. The chain is the largest', chain=blockchain.chain)
 
-    return json(body=response.dict())
+    return HTTPResponse(
+        body=response.json(),
+        content_type='application/json',
+    )
