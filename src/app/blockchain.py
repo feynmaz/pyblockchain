@@ -100,7 +100,8 @@ class BlockChain:
             with requests.get(f'http://{node}/get_chain') as response:
                 if response.status_code == HTTPStatus.OK.value:
                     length = response.json()['length']
-                    chain = response.json()['chain']
+                    chain_raw: list[dict] = response.json()['chain']
+                    chain: list[Block] = [Block.parse_obj(_) for _ in chain_raw]
                     if length > max_length and self.is_chain_valid(chain):
                         max_length = length
                         longest_chain = chain
