@@ -6,7 +6,6 @@ from .transaction import Transaction
 
 
 class Block(BaseModel):
-    hash: str
     index: int
     timestamp: datetime
     proof: int

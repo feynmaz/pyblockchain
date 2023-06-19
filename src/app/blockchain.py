@@ -20,7 +20,6 @@ class BlockChain:
 
     def create_block(self, proof: int, previous_hash: str, data: str = '') -> Block:
         block = Block(
-            hash='',
             index=len(self.chain) + 1,
             timestamp=datetime.now(),
             proof=proof,
@@ -28,7 +27,7 @@ class BlockChain:
             data=data,
             transactions=self.transactions,
         )
-        self.transactions: list[Transaction] = []
+        self.transactions = []
         self.chain.append(block)
         return block
 

@@ -12,7 +12,6 @@ from .models import requests
 from .models import responses
 from src.app.blockchain import BlockChain
 from src.app.models.transaction import Transaction
-from src.settings import settings
 
 blockchain = BlockChain()
 
@@ -27,20 +26,18 @@ app = Sanic('blockchain')
     },
 )
 async def mine_block(request: Request):
+    if len(blockchain.transactions) == 0:
+        raise BadRequest(message='failed to create new block: no transactions created')
+
     previous_block = blockchain.get_previous_block()
     prev_proof = previous_block.proof
     proof = blockchain.proof_of_work(prev_proof)
     previous_hash = blockchain.hash(previous_block)
 
-    blockchain.add_transaction(
-        sender=settings.node_address,
-        receiver='Nikolai',
-        amount=143,
-    )
     block = blockchain.create_block(proof, previous_hash)
 
     response = responses.MineBlock(
-        message='Congratulations! You just mined a block!',
+        message='block mined',
         index=block.index,
         timestamp=block.timestamp,
         proof=block.proof,
@@ -106,7 +103,7 @@ async def add_transaction(request: Request):
         transaction.amount,
     )
     return text(
-        body=f'This transaction will be added to the block {index}',
+        body=f'transaction will be added to the block {index}',
         status=201,
     )
 
@@ -136,7 +133,7 @@ async def connect_node(request: Request):
         blockchain.add_node(node)
 
     response = responses.ConnectNodes(
-        message='all the nodes are connected',
+        message=f'nodes are connected: {blockchain.nodes}',
         total_nodes=len(blockchain.nodes),
     )
     return json(
@@ -156,11 +153,11 @@ def replace_chain(request):
     is_chain_replaced = blockchain.replace_chain()
     if is_chain_replaced:
         response = responses.ReplaceChain(
-            message='nodes had different chains so the chain was replaced by the longest one', chain=blockchain.chain
+            message='nodes had different chains, so the chain was replaced by the longest one', chain=blockchain.chain
         )
 
     else:
-        response = responses.ReplaceChain(message='all good. The chain is the largest', chain=blockchain.chain)
+        response = responses.ReplaceChain(message='the chain is the largest', chain=blockchain.chain)
 
     return HTTPResponse(
         body=response.json(),
