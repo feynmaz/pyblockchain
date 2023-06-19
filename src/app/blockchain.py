@@ -1,24 +1,33 @@
 import hashlib
 from datetime import datetime
+from http import HTTPStatus
+from typing import Set
 from typing import Tuple
+from urllib.parse import urlparse
+
+import requests
 
 from .models.block import Block
+from .models.transaction import Transaction
 
 
 class BlockChain:
     def __init__(self):
         self.chain: list[Block] = []
+        self.transactions: list[Transaction] = []
         self.create_block(proof=1, previous_hash='0')
+        self.nodes: Set[str] = set()
 
     def create_block(self, proof: int, previous_hash: str, data: str = '') -> Block:
         block = Block(
-            hash='',
             index=len(self.chain) + 1,
             timestamp=datetime.now(),
             proof=proof,
             previous_hash=previous_hash,
             data=data,
+            transactions=self.transactions,
         )
+        self.transactions = []
         self.chain.append(block)
         return block
 
@@ -66,3 +75,38 @@ class BlockChain:
             return 'Chain is invalid', False
 
         return '', True
+
+    def add_transaction(self, sender: str, receiver: str, amount: float) -> int:
+        self.transactions.append(
+            Transaction(
+                sender=sender,
+                receiver=receiver,
+                amount=amount,
+            )
+        )
+        previous_block = self.get_previous_block()
+        return previous_block.index + 1
+
+    def add_node(self, address: str):
+        parsed_url = urlparse(address)
+        self.nodes.add(parsed_url.netloc)
+
+    def replace_chain(self):
+        network = self.nodes
+        longest_chain: list[Block] = []
+        max_length = len(self.chain)
+        for node in network:
+            with requests.get(f'http://{node}/get_chain') as response:
+                if response.status_code == HTTPStatus.OK.value:
+                    length = response.json()['length']
+                    chain_raw: list[dict] = response.json()['chain']
+                    chain: list[Block] = [Block.parse_obj(_) for _ in chain_raw]
+                    if length > max_length and self.is_chain_valid(chain):
+                        max_length = length
+                        longest_chain = chain
+
+        if longest_chain:
+            self.chain = longest_chain
+            return True
+
+        return False

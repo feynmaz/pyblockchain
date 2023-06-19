@@ -1,0 +1,50 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Sanic",
+            "type": "python",
+            "request": "launch",
+            "module": "sanic",
+            "justMyCode": true,
+            "args": [
+                "src.adapters.left.http.app:app",
+            ]
+        },
+        {
+            "name": "node5001",
+            "type": "python",
+            "request": "launch",
+            "module": "sanic",
+            "justMyCode": true,
+            "args": [
+                "src.adapters.left.http.app:app",
+                "--port",
+                "5001",
+            ]
+        },
+        {
+            "name": "node5002",
+            "type": "python",
+            "request": "launch",
+            "module": "sanic",
+            "justMyCode": true,
+            "args": [
+                "src.adapters.left.http.app:app",
+                "--port",
+                "5002",
+            ]
+        }
+    ],
+    "compounds": [
+        {
+            "name": "nodes",
+            "configurations": [
+                "node5001", "node5002"
+            ]
+        }
+    ]
+}
